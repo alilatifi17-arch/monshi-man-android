@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="منشی شخصی آفلاین برای یادآوری کارهای شخصی و کاری" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" />
+  <title>منشی من</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --panel:#ffffff; --ink:#162033; --muted:#667085;
+      --line:#e7eaf0; --primary:#1f5eff; --primary2:#0e43cc;
+      --good:#0f9d58; --warn:#e78b00; --bad:#d92d20; --soft:#eef4ff;
+      --shadow:0 12px 35px rgba(19,33,68,.09); --r:22px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    .app{max-width:780px;margin:0 auto;min-height:100vh;padding-bottom:92px}
+    .topbar{position:sticky;top:0;z-index:20;background:rgba(246,247,251,.94);backdrop-filter:blur(12px);padding:14px 16px 10px}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand h1{font-size:21px;margin:0}
+    .brand small{color:var(--muted)}
+    .avatar{width:42px;height:42px;border-radius:15px;background:#0f172a;color:#fff;display:grid;place-items:center;font-size:20px}
+    .content{padding:8px 16px 20px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+    .hero{padding:18px;margin-bottom:14px;background:linear-gradient(145deg,#0f172a,#263858);color:#fff}
+    .hero .date{opacity:.78;font-size:13px}
+    .hero h2{font-size:22px;margin:8px 0 6px}
+    .hero p{margin:0;opacity:.85;font-size:13px;line-height:1.9}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+    .stat{padding:11px;border-radius:16px;background:rgba(255,255,255,.1);text-align:center}
+    .stat b{display:block;font-size:20px}.stat span{font-size:11px;opacity:.8}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .zone{padding:18px;min-height:130px;position:relative;overflow:hidden}
+    .zone:after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;left:-25px;bottom:-30px;background:var(--soft)}
+    .zone .ico{font-size:30px}.zone h3{margin:9px 0 4px;font-size:18px}.zone p{margin:0;color:var(--muted);font-size:12px}
+    .zone.personal{border-top:4px solid #7c3aed}.zone.work{border-top:4px solid var(--primary)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 10px}
+    .section-title h3{margin:0;font-size:16px}.section-title span{font-size:12px;color:var(--muted)}
+    .task{padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+    .task .dot{width:11px;height:11px;border-radius:50%;background:var(--primary);margin-top:7px;flex:0 0 auto}
+    .task.overdue .dot{background:var(--bad)} .task.done .dot{background:var(--good)}
+    .task-main{flex:1;min-width:0}.task-title{font-weight:700;line-height:1.7}.task-meta{color:var(--muted);font-size:12px;margin-top:3px}
+    .task-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+    .mini{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 9px;font-size:11px}
+    .mini.good{color:var(--good);border-color:#b9e7cd}.mini.warn{color:var(--warn);border-color:#f5d5a5}
+    .empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+    .bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(780px,100%);background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:25}
+    .navbtn{border:0;background:transparent;padding:7px 3px;color:var(--muted);font-size:11px;border-radius:14px}
+    .navbtn b{display:block;font-size:20px;margin-bottom:3px}.navbtn.active{color:var(--primary);background:var(--soft)}
+    .fab{position:fixed;bottom:82px;left:max(18px,calc((100vw - 780px)/2 + 18px));width:58px;height:58px;border:0;border-radius:20px;background:var(--primary);color:#fff;font-size:31px;box-shadow:0 12px 25px rgba(31,94,255,.28);z-index:24}
+    .page-head{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+    .back{border:0;background:#fff;border:1px solid var(--line);width:42px;height:42px;border-radius:14px}
+    .pill{display:inline-flex;gap:6px;align-items:center;background:#f2f4f7;border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted)}
+    .sections{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .section-card{padding:14px;text-align:right;border:1px solid var(--line);border-radius:18px;background:#fff}
+    .section-card b{display:block;margin-bottom:5px}.section-card span{font-size:11px;color:var(--muted)}
+    .add-section{border:1px dashed #9fb7ff;background:#f7f9ff;color:var(--primary)}
+    .filters{display:flex;gap:8px;overflow:auto;padding-bottom:7px}
+    .chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:12px}
+    .chip.active{background:#0f172a;color:#fff;border-color:#0f172a}
+    .sheet-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.46);z-index:40;display:grid;align-items:end}
+    .sheet{background:#fff;border-radius:28px 28px 0 0;padding:18px 16px 22px;max-height:92vh;overflow:auto;width:min(780px,100%);margin:0 auto}
+    .sheet h3{margin:0 0 14px}
+    label{display:block;font-size:12px;color:#475467;margin:12px 2px 6px}
+    input,select,textarea{width:100%;border:1px solid #dfe3ea;background:#fff;border-radius:14px;padding:11px 12px;outline:none;color:var(--ink)}
+    input:focus,select:focus,textarea:focus{border-color:#8baaff;box-shadow:0 0 0 3px #eef4ff}
+    textarea{min-height:82px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .actions{display:flex;gap:9px;margin-top:16px}
+    .btn{border:0;border-radius:14px;padding:11px 15px;font-weight:700}
+    .btn.primary{background:var(--primary);color:#fff;flex:1}.btn.ghost{background:#f2f4f7;color:#344054}.btn.danger{background:#fff0ef;color:var(--bad)}
+    .voicebox{border:1px dashed #cbd5e1;border-radius:16px;padding:12px;margin-top:8px}
+    .voice-actions{display:flex;gap:8px;align-items:center}.voice-status{font-size:11px;color:var(--muted)}
+    .login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 20% 10%,#e8efff,transparent 35%),#f6f7fb}
+    .login{width:min(420px,100%);padding:24px}
+    .login .logo{width:72px;height:72px;border-radius:24px;background:#0f172a;color:#fff;display:grid;place-items:center;font-size:34px;margin:0 auto 14px}
+    .login h1{text-align:center;margin:4px 0}.login p{text-align:center;color:var(--muted);font-size:13px;line-height:1.8}
+    .notice{font-size:11px;color:var(--muted);background:#f8fafc;padding:10px;border-radius:12px;margin-top:12px;line-height:1.8}
+    .report-card{padding:16px;margin-bottom:12px}.report-card h3{margin:0 0 8px}.big-num{font-size:30px;font-weight:800}
+    .progress{height:9px;background:#eef1f5;border-radius:99px;overflow:hidden;margin-top:10px}.progress i{display:block;height:100%;background:var(--good);border-radius:99px}
+    .setting{padding:15px;margin-bottom:10px}.setting h4{margin:0 0 5px}.setting p{margin:0;color:var(--muted);font-size:11px;line-height:1.7}
+    .alarm{position:fixed;inset:0;z-index:70;background:rgba(15,23,42,.7);display:grid;place-items:center;padding:18px}
+    .alarm-card{width:min(430px,100%);background:#fff;border-radius:28px;padding:22px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.25)}
+    .alarm-icon{font-size:45px}.alarm-card h2{margin:8px 0}.alarm-card p{color:var(--muted);line-height:1.8}
+    .alarm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    .quick{margin-top:14px;width:100%;border:0;border-radius:14px;padding:11px 14px;background:rgba(255,255,255,.14);color:#fff;font-weight:700}
+    .section-wrap{position:relative}.section-tools{position:absolute;left:8px;top:8px;z-index:2}.section-tools button{border:0;background:#f2f4f7;border-radius:9px;padding:4px 7px}
+    .weekdays{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.weekdays label{margin:0;padding:8px 4px;border:1px solid var(--line);border-radius:11px;text-align:center;color:var(--ink);font-size:11px}.weekdays input{width:auto;margin-left:4px}
+    .native-note{font-size:11px;color:var(--muted);line-height:1.8;margin-top:8px}
+    .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 15px;border-radius:13px;z-index:100;font-size:12px;box-shadow:var(--shadow)}
+    @media (max-width:430px){.grid2,.sections{grid-template-columns:1fr 1fr}.zone{min-height:122px;padding:15px}.hero h2{font-size:20px}.row{grid-template-columns:1fr}.row3{gap:5px}}
+  </style>
+</head>
+<body>
+<div id="app" class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div><h1 id="topTitle">منشی من</h1><small id="topSub">همراه شخصی و کاری</small></div>
+      <div class="avatar">✓</div>
+    </div>
+  </header>
+  <main id="content" class="content"></main>
+</div>
+
+<button id="fab" class="fab" title="افزودن یادآوری">+</button>
+
+<nav id="bottomNav" class="bottomnav">
+  <button class="navbtn active" data-page="home"><b>⌂</b>خانه</button>
+  <button class="navbtn" data-page="reminders"><b>⏰</b>یادآوری‌ها</button>
+  <button class="navbtn" data-page="report"><b>◫</b>گزارش</button>
+  <button class="navbtn" data-page="settings"><b>⚙</b>تنظیمات</button>
+</nav>
+
+<div id="modalRoot"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const LS={data:'mm_data_v2',settings:'mm_settings_v2',logs:'mm_logs_v2',summary:'mm_summary_v2'};
+function loadStored(primary,legacy,fallback){const v=localStorage.getItem(primary);if(v)return JSON.parse(v);const old=localStorage.getItem(legacy);return old?JSON.parse(old):fallback}
+const state={page:'home',zone:null,filter:'all',voiceBlob:null,nativeAudioId:null,recording:false,
+  data:loadStored(LS.data,'mm_data_v1',{sections:[],reminders:[]}),
+  logs:loadStored(LS.logs,'mm_logs_v1',[]),
+  settings:loadStored(LS.settings,'mm_settings_v1',{summaryTime:'22:00',notify:true})};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const save=()=>localStorage.setItem(LS.data,JSON.stringify(state.data));
+const saveLogs=()=>localStorage.setItem(LS.logs,JSON.stringify(state.logs));
+const saveSettings=()=>localStorage.setItem(LS.settings,JSON.stringify(state.settings));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const hasNative=()=>typeof AndroidNative!=='undefined';
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2200)}
+const faDigits=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+function pDate(d=new Date(),withTime=false){const opt={calendar:'persian',year:'numeric',month:'long',day:'numeric',weekday:'long'};let s=new Intl.DateTimeFormat('fa-IR-u-ca-persian',opt).format(d);if(withTime)s+=' - '+new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'}).format(d);return s}
+function pShort(d){return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)}
+function todayKey(d=new Date()){const x=new Date(d);const y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),day=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function startOfDay(d=new Date()){let x=new Date(d);x.setHours(0,0,0,0);return x} function endOfDay(d=new Date()){let x=new Date(d);x.setHours(23,59,59,999);return x}
+function isToday(ts){const d=new Date(ts),n=new Date();return d>=startOfDay(n)&&d<=endOfDay(n)}
+function dueToday(r){return r.active!==false&&isToday(r.nextAt)}
+function todaysStats(){const k=todayKey();const logs=state.logs.filter(l=>l.date===k);const doneIds=new Set(logs.filter(l=>l.action==='done').map(l=>l.rid));const dueIds=new Set(state.data.reminders.filter(dueToday).map(r=>r.id));logs.forEach(l=>dueIds.add(l.rid));const late=state.data.reminders.filter(r=>r.active!==false&&new Date(r.nextAt)<new Date()).length;return {total:dueIds.size,done:doneIds.size,late}}
+function updateNativeStats(){if(!hasNative())return;const s=todaysStats();try{AndroidNative.updateStats(s.total,s.done,s.late,todayKey());AndroidNative.scheduleSummary(state.settings.summaryTime||'22:00')}catch(e){}}
+function homeHTML(){const s=todaysStats();const upcoming=[...state.data.reminders].filter(r=>r.active!==false).sort((a,b)=>new Date(a.nextAt)-new Date(b.nextAt)).slice(0,6);return `
+<section class="hero card"><div class="date">${pDate()}</div><h2>امروز چه چیزهایی باید یادت بماند؟</h2><p>منشی شخصی و کاری تو؛ همه اطلاعات روی همین گوشی می‌ماند.</p><button class="quick" onclick="quickVoice()">🎙 ثبت سریع با ویس</button><div class="stats"><div class="stat"><b>${faDigits(s.total)}</b><span>کار امروز</span></div><div class="stat"><b>${faDigits(s.done)}</b><span>انجام‌شده</span></div><div class="stat"><b>${faDigits(s.late)}</b><span>عقب‌افتاده</span></div></div></section>
+<div class="grid2"><button class="zone personal card" onclick="openZone('personal')"><div class="ico">🏠</div><h3>شخصی</h3><p>یادداشت‌ها و پیگیری‌های شخصی</p></button><button class="zone work card" onclick="openZone('work')"><div class="ico">💼</div><h3>کاری</h3><p>بخش‌ها، پیگیری‌ها و کارهای روزانه</p></button></div>
+<div class="section-title"><h3>نزدیک‌ترین یادآوری‌ها</h3><span>${faDigits(upcoming.length)} مورد</span></div>${upcoming.length?upcoming.map(taskHTML).join(''):'<div class="card empty">هنوز یادآوری ثبت نکرده‌ای.</div>'}`}
+function repeatText(r){if(r.repeat==='weekdays')return 'روزهای انتخابی';return ({once:'یک‌بار',daily:'روزانه',weekly:'هفتگی',monthly:'ماهانه',hours:'ساعتی'}[r.repeat]||'')}
+function taskHTML(r){const sec=state.data.sections.find(s=>s.id===r.sectionId);const cls=new Date(r.nextAt)<new Date()?'overdue':'';return `<div class="task card ${cls}"><div class="dot"></div><div class="task-main"><div class="task-title">${escapeHtml(r.title)}</div><div class="task-meta">${r.zone==='work'?'کاری':'شخصی'}${sec?' • '+escapeHtml(sec.name):''} • ${pShort(new Date(r.nextAt))} • ${repeatText(r)}</div><div class="task-actions"><button class="mini good" onclick="completeTask('${r.id}')">انجام شد</button><button class="mini warn" onclick="snoozeTask('${r.id}',15)">۱۵ دقیقه بعد</button><button class="mini" onclick="editReminder('${r.id}')">ویرایش</button></div></div></div>`}
+function zoneHTML(zone){const name=zone==='work'?'کاری':'شخصی';const secs=state.data.sections.filter(s=>s.zone===zone);const all=state.data.reminders.filter(r=>r.zone===zone&&r.active!==false).sort((a,b)=>new Date(a.nextAt)-new Date(b.nextAt));const tasks=state.filter==='all'?all:all.filter(r=>r.sectionId===state.filter);return `<div class="page-head"><div><h2 style="margin:0">بخش ${name}</h2><div class="pill">${faDigits(all.length)} یادآوری فعال</div></div><button class="back" onclick="goHome()">→</button></div><div class="section-title"><h3>زیر‌بخش‌ها</h3><span>هر تعداد خواستی بساز</span></div><div class="filters"><button class="chip ${state.filter==='all'?'active':''}" onclick="state.filter='all';render()">همه</button>${secs.map(s=>`<button class="chip ${state.filter===s.id?'active':''}" onclick="state.filter='${s.id}';render()">${escapeHtml(s.name)}</button>`).join('')}</div><div class="sections">${secs.map(s=>`<div class="section-wrap"><button class="section-card" style="width:100%" onclick="state.filter='${s.id}';render()"><b>${escapeHtml(s.name)}</b><span>${faDigits(all.filter(r=>r.sectionId===s.id).length)} یادآوری</span></button><div class="section-tools"><button onclick="event.stopPropagation();editSection('${s.id}')">✎</button></div></div>`).join('')}<button class="section-card add-section" onclick="showSectionModal('${zone}')"><b>＋ بخش جدید</b><span>مثلاً انبار، بازار، برق...</span></button></div><div class="section-title"><h3>یادآوری‌های ${state.filter==='all'?name:(secs.find(s=>s.id===state.filter)?.name||name)}</h3><span></span></div>${tasks.length?tasks.map(taskHTML).join(''):'<div class="card empty">برای این بخش هنوز کاری ثبت نشده.</div>'}`}
+function remindersHTML(){let arr=[...state.data.reminders].filter(r=>r.active!==false).sort((a,b)=>new Date(a.nextAt)-new Date(b.nextAt));if(state.filter==='today')arr=arr.filter(dueToday);if(state.filter==='late')arr=arr.filter(r=>new Date(r.nextAt)<new Date());if(state.filter==='work'||state.filter==='personal')arr=arr.filter(r=>r.zone===state.filter);return `<div class="page-head"><div><h2 style="margin:0">همه یادآوری‌ها</h2><div class="pill">${faDigits(arr.length)} مورد</div></div></div><div class="filters">${[['all','همه'],['today','امروز'],['late','عقب‌افتاده'],['work','کاری'],['personal','شخصی']].map(x=>`<button class="chip ${state.filter===x[0]?'active':''}" onclick="state.filter='${x[0]}';render()">${x[1]}</button>`).join('')}</div>${arr.length?arr.map(taskHTML).join(''):'<div class="card empty">موردی در این فیلتر نیست.</div>'}`}
+function reportHTML(){const k=todayKey(),logs=state.logs.filter(l=>l.date===k),done=logs.filter(l=>l.action==='done').length,missed=logs.filter(l=>l.action==='missed').length,s=todaysStats(),pct=s.total?Math.min(100,Math.round(done/s.total*100)):0;return `<div class="page-head"><div><h2 style="margin:0">گزارش امروز</h2><div class="pill">${pDate()}</div></div></div><div class="report-card card"><h3>پیشرفت امروز</h3><div class="big-num">${faDigits(pct)}٪</div><div class="progress"><i style="width:${pct}%"></i></div></div><div class="grid2"><div class="report-card card"><h3>انجام‌شده</h3><div class="big-num">${faDigits(done)}</div></div><div class="report-card card"><h3>عقب‌افتاده</h3><div class="big-num">${faDigits(s.late)}</div></div></div><div class="report-card card"><h3>خلاصه شبانه</h3><p style="color:var(--muted);line-height:1.9">هر شب ساعت ${faDigits(state.settings.summaryTime)} خلاصه کارهای امروز از طریق اعلان اندروید نمایش داده می‌شود.</p><button class="btn ghost" onclick="showNightSummary(true)">نمایش خلاصه الان</button></div>`}
+function settingsHTML(){return `<div class="page-head"><div><h2 style="margin:0">تنظیمات</h2><div class="pill">کاملاً آفلاین</div></div></div><div class="setting card"><h4>مجوز اعلان و آلارم</h4><p>برای اینکه حتی با بسته بودن برنامه یادآوری بیاید، مجوز اعلان و آلارم دقیق اندروید را فعال کن.</p><div class="actions"><button class="btn primary" onclick="requestNotify(true)">فعال‌کردن مجوزها</button><button class="btn ghost" onclick="testAlarm()">تست اعلان</button></div></div><div class="setting card"><h4>ساعت خلاصه شبانه</h4><p>پیش‌فرض ساعت ۲۲:۰۰ است.</p><input id="summaryTime" type="time" value="${state.settings.summaryTime}" onchange="state.settings.summaryTime=this.value;saveSettings();if(hasNative())AndroidNative.scheduleSummary(this.value);toast('ذخیره شد')"></div><div class="setting card"><h4>پشتیبان‌گیری</h4><p>یادآوری‌ها، بخش‌ها، تنظیمات و گزارش‌ها را ذخیره یا بازیابی کن.</p><div class="actions"><button class="btn primary" onclick="exportData()">خروجی پشتیبان</button>${hasNative()?'<button class="btn ghost" onclick="AndroidNative.openBackupPicker()">ورود پشتیبان</button>':'<label class="btn ghost" style="text-align:center">ورود پشتیبان<input type="file" accept=".json" class="hidden" onchange="importData(this.files[0])"></label>'}</div></div><div class="setting card"><h4>نسخه اندروید</h4><p>بدون حساب کاربری، بدون سرور و بدون اینترنت. اطلاعات در حافظه همین گوشی ذخیره می‌شود.</p></div>`}
+function render(){$$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===state.page));let h='';if(state.zone)h=zoneHTML(state.zone);else if(state.page==='home')h=homeHTML();else if(state.page==='reminders')h=remindersHTML();else if(state.page==='report')h=reportHTML();else h=settingsHTML();$('#content').innerHTML=h;updateNativeStats()}
+function openZone(z){state.zone=z;state.page='home';state.filter='all';render()} function goHome(){state.zone=null;state.page='home';state.filter='all';render()}
+$$('.navbtn').forEach(b=>b.onclick=()=>{state.page=b.dataset.page;state.zone=null;state.filter='all';render()});$('#fab').onclick=()=>showReminderModal(state.zone||'work');
+function quickVoice(){showReminderModal(state.zone||'work');setTimeout(()=>startRecording(),250)}
+function showSectionModal(zone){modal(`<h3>ساخت زیر‌بخش جدید</h3><label>نام بخش</label><input id="secName" placeholder="مثلاً انبار، بازار، برق، خرید..." /><div class="actions"><button class="btn primary" onclick="addSection('${zone}')">ذخیره</button><button class="btn ghost" onclick="closeModal()">انصراف</button></div>`)}
+function addSection(zone){const name=$('#secName').value.trim();if(!name)return toast('نام بخش را وارد کن');state.data.sections.push({id:uid(),zone,name});save();closeModal();render();toast('بخش ساخته شد')}
+function editSection(id){const s=state.data.sections.find(x=>x.id===id);if(!s)return;modal(`<h3>ویرایش بخش</h3><label>نام بخش</label><input id="secEditName" value="${escapeAttr(s.name)}"><div class="actions"><button class="btn primary" onclick="renameSection('${id}')">ذخیره</button><button class="btn danger" onclick="deleteSection('${id}')">حذف بخش</button><button class="btn ghost" onclick="closeModal()">انصراف</button></div><div class="native-note">با حذف بخش، خود یادآوری‌ها حذف نمی‌شوند و فقط از این دسته خارج می‌شوند.</div>`)}
+function renameSection(id){const s=state.data.sections.find(x=>x.id===id),n=$('#secEditName').value.trim();if(!s||!n)return;s.name=n;save();closeModal();render();toast('نام بخش تغییر کرد')}
+function deleteSection(id){if(!confirm('این بخش حذف شود؟ یادآوری‌ها باقی می‌مانند.'))return;state.data.sections=state.data.sections.filter(s=>s.id!==id);state.data.reminders.forEach(r=>{if(r.sectionId===id)r.sectionId=null});state.filter='all';save();closeModal();render();toast('بخش حذف شد')}
+function currentPersianParts(){const parts=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date());const obj={};parts.forEach(p=>obj[p.type]=parseInt(p.value));return {y:obj.year,m:obj.month,d:obj.day}}
+function dateSelectors(existing){let pp=currentPersianParts();if(existing){const d=new Date(existing),parts=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric'}).formatToParts(d),o={};parts.forEach(p=>o[p.type]=parseInt(p.value));pp={y:o.year,m:o.month,d:o.day}}const ys=[];for(let y=pp.y-1;y<=pp.y+8;y++)ys.push(`<option ${y===pp.y?'selected':''}>${y}</option>`);const ms=[];for(let m=1;m<=12;m++)ms.push(`<option value="${m}" ${m===pp.m?'selected':''}>${faDigits(m)}</option>`);const ds=[];for(let d=1;d<=31;d++)ds.push(`<option value="${d}" ${d===pp.d?'selected':''}>${faDigits(d)}</option>`);return `<div class="row3"><select id="jy">${ys.join('')}</select><select id="jm">${ms.join('')}</select><select id="jd">${ds.join('')}</select></div>`}
+const weekNames=['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+function weekdayPicker(selected=[]){return `<div class="weekdays">${weekNames.map((n,i)=>`<label><input type="checkbox" class="wd" value="${i}" ${selected.includes(i)?'checked':''}>${n}</label>`).join('')}</div>`}
+function showReminderModal(zone='work',editing=null){state.voiceBlob=null;state.nativeAudioId=null;const r=editing?state.data.reminders.find(x=>x.id===editing):null;if(r)zone=r.zone;const secs=state.data.sections.filter(s=>s.zone===zone),dt=r?new Date(r.nextAt):new Date(Date.now()+10*60000);modal(`<h3>${r?'ویرایش':'یادآوری جدید'}</h3><label>نوع</label><select id="rZone" onchange="refreshSectionOptions(this.value)"><option value="work" ${zone==='work'?'selected':''}>کاری</option><option value="personal" ${zone==='personal'?'selected':''}>شخصی</option></select><label>زیر‌بخش</label><select id="rSection"><option value="">بدون زیر‌بخش</option>${secs.map(s=>`<option value="${s.id}" ${r&&r.sectionId===s.id?'selected':''}>${escapeHtml(s.name)}</option>`).join('')}</select><label>موضوع یادآوری</label><input id="rTitle" value="${r?escapeAttr(r.title):''}" placeholder="مثلاً ساعت ۱۰ از انباردار آمار بگیر" /><label>توضیحات</label><textarea id="rNote" placeholder="جزئیات کوتاه...">${r?escapeHtml(r.note||''):''}</textarea><label>تاریخ شمسی</label>${dateSelectors(r?.nextAt)}<div class="row"><div><label>ساعت</label><input id="rTime" type="time" value="${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}"></div><div><label>تکرار</label><select id="rRepeat" onchange="toggleRepeatExtras()"><option value="once" ${r?.repeat==='once'?'selected':''}>یک‌بار</option><option value="daily" ${r?.repeat==='daily'?'selected':''}>هر روز</option><option value="weekdays" ${r?.repeat==='weekdays'?'selected':''}>روزهای خاص هفته</option><option value="weekly" ${r?.repeat==='weekly'?'selected':''}>هر هفته</option><option value="monthly" ${r?.repeat==='monthly'?'selected':''}>هر ماه</option><option value="hours" ${r?.repeat==='hours'?'selected':''}>هر چند ساعت</option></select></div></div><div id="hourIntervalWrap" class="${r?.repeat==='hours'?'':'hidden'}"><label>فاصله ساعتی</label><input id="rHours" type="number" min="1" max="168" value="${r?.hours||1}"></div><div id="weekdayWrap" class="${r?.repeat==='weekdays'?'':'hidden'}"><label>روزهای تکرار</label>${weekdayPicker(r?.weekdays||[])}</div><label>یادداشت صوتی</label><div class="voicebox"><div class="voice-actions"><button id="recBtn" class="btn ghost" onclick="startRecording()">🎙 شروع ضبط</button><button id="stopBtn" class="btn ghost hidden" onclick="stopRecording()">■ توقف</button><span id="voiceStatus" class="voice-status">${r?.audioId?'ویس قبلی ذخیره شده':'بدون ویس'}</span></div>${r?.audioId?`<button class="mini" style="margin-top:8px" onclick="playAudio('${r.audioId}')">▶ پخش ویس قبلی</button>`:''}</div><div class="actions"><button class="btn primary" onclick="saveReminder('${r?.id||''}')">ذخیره</button><button class="btn ghost" onclick="closeModal()">انصراف</button>${r?`<button class="btn danger" onclick="deleteReminder('${r.id}')">حذف</button>`:''}</div>`)}
+function refreshSectionOptions(zone){const secs=state.data.sections.filter(s=>s.zone===zone);$('#rSection').innerHTML='<option value="">بدون زیر‌بخش</option>'+secs.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}
+function toggleRepeatExtras(){const v=$('#rRepeat').value;$('#hourIntervalWrap').classList.toggle('hidden',v!=='hours');$('#weekdayWrap').classList.toggle('hidden',v!=='weekdays')}
+function div(a,b){return Math.trunc(a/b)} function mod(a,b){return a-Math.trunc(a/b)*b}
+function jalCal(jy){const breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];let bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jm,jump,n,i;if(jy<jp||jy>=breaks[bl-1])throw Error('Invalid Jalaali year');for(i=1;i<bl;i++){jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ+=div(jump,33)*8+div(mod(jump,33),4);jp=jm}n=jy-jp;leapJ+=div(n,33)*8+div(mod(n,33)+3,4);if(mod(jump,33)===4&&jump-n===4)leapJ++;const leapG=div(gy,4)-div((div(gy,100)+1)*3,4)-150,march=20+leapJ-leapG;if(jump-n<6)n=n-jump+div(jump+4,33)*33;let leap=mod(mod(n+1,33)-1,4);if(leap===-1)leap=4;return {leap,gy,march}}
+function g2d(gy,gm,gd){let d=div((gy+div(gm-8,6)+100100)*1461,4)+div(153*mod(gm+9,12)+2,5)+gd-34840408;d=d-div(div(gy+100100+div(gm-8,6),100)*3,4)+752;return d} function d2g(jdn){let j=4*jdn+139361631;j=j+div(div(4*jdn+183187720,146097)*3,4)*4-3908;let i=div(mod(j,1461),4)*5+308;let gd=div(mod(i,153),5)+1,gm=mod(div(i,153),12)+1,gy=div(j,1461)-100100+div(8-gm,6);return {gy,gm,gd}} function j2d(jy,jm,jd){let r=jalCal(jy);return g2d(r.gy,3,r.march)+(jm-1)*31-div(jm,7)*(jm-7)+jd-1} function j2g(jy,jm,jd){return d2g(j2d(jy,jm,jd))}
+function validJDate(y,m,d){if(m<1||m>12||d<1)return false;let max=m<=6?31:m<=11?30:(jalCal(y).leap===0?30:29);return d<=max}
+function scheduleNativeReminder(r){if(!hasNative())return;try{AndroidNative.scheduleReminder(r.id,r.title,r.note||'',new Date(r.nextAt).getTime(),r.repeat||'once',r.hours||1,(r.weekdays||[]).join(','))}catch(e){}}
+async function saveReminder(id){if(state.recording)return toast('اول ضبط ویس را متوقف کن');const title=$('#rTitle').value.trim();if(!title)return toast('موضوع یادآوری را بنویس');const jy=+$('#jy').value,jm=+$('#jm').value,jd=+$('#jd').value,tm=$('#rTime').value||'09:00';if(!validJDate(jy,jm,jd))return toast('تاریخ شمسی معتبر نیست');let g;try{g=j2g(jy,jm,jd)}catch(e){return toast('تاریخ شمسی نامعتبر است')}const [hh,mm]=tm.split(':').map(Number),next=new Date(g.gy,g.gm-1,g.gd,hh,mm,0,0),repeat=$('#rRepeat').value,weekdays=[...$$('.wd:checked')].map(x=>+x.value);if(next.getTime()<Date.now()-60000)return toast('زمان یادآوری در گذشته است');if(repeat==='weekdays'&&!weekdays.length)return toast('حداقل یک روز هفته را انتخاب کن');let audioId=id?state.data.reminders.find(x=>x.id===id)?.audioId:null;if(state.nativeAudioId)audioId=state.nativeAudioId;else if(state.voiceBlob){audioId=audioId||uid();await idbPut(audioId,state.voiceBlob)}const obj={id:id||uid(),zone:$('#rZone').value,sectionId:$('#rSection').value||null,title,note:$('#rNote').value.trim(),nextAt:next.toISOString(),repeat,hours:+($('#rHours')?.value||1),weekdays,audioId,active:true,alertedAt:null,createdAt:id?(state.data.reminders.find(x=>x.id===id)?.createdAt||new Date().toISOString()):new Date().toISOString()};const ix=state.data.reminders.findIndex(x=>x.id===id);if(ix>=0)state.data.reminders[ix]={...state.data.reminders[ix],...obj};else state.data.reminders.push(obj);save();scheduleNativeReminder(obj);closeModal();render();toast('یادآوری ذخیره شد')}
+function editReminder(id){showReminderModal('work',id)}
+async function deleteReminder(id){if(!confirm('این یادآوری حذف شود؟'))return;const r=state.data.reminders.find(x=>x.id===id);if(r?.audioId){if(hasNative())AndroidNative.deleteRecording(r.audioId);else await idbDelete(r.audioId)}if(hasNative())AndroidNative.cancelReminder(id);state.data.reminders=state.data.reminders.filter(x=>x.id!==id);save();closeModal();render();toast('حذف شد')}
+function addMonthClamped(base){const d=new Date(base),day=d.getDate(),h=d.getHours(),m=d.getMinutes();d.setDate(1);d.setMonth(d.getMonth()+1);const max=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,max));d.setHours(h,m,0,0);return d}
+function nextOccurrence(r,base=new Date(r.nextAt)){let d=new Date(base);const advance=()=>{if(r.repeat==='daily')d.setDate(d.getDate()+1);else if(r.repeat==='weekly')d.setDate(d.getDate()+7);else if(r.repeat==='monthly')d=addMonthClamped(d);else if(r.repeat==='hours')d.setHours(d.getHours()+(r.hours||1));else if(r.repeat==='weekdays'){const set=new Set(r.weekdays||[]);for(let i=0;i<14;i++){d.setDate(d.getDate()+1);if(set.has(d.getDay()))break}}else return false;return true};if(!advance())return null;let guard=0;while(d<=new Date()&&guard++<400)advance();return d}
+function completeTask(id,fromAlarm=false){const r=state.data.reminders.find(x=>x.id===id);if(!r)return;state.logs.push({id:uid(),rid:id,date:todayKey(),at:new Date().toISOString(),action:'done',title:r.title});const nxt=nextOccurrence(r);if(nxt){r.nextAt=nxt.toISOString();r.alertedAt=null;scheduleNativeReminder(r)}else{r.active=false;if(hasNative())AndroidNative.cancelReminder(id)}save();saveLogs();if(fromAlarm)closeModal();render();toast('انجام شد ✓')}
+function snoozeTask(id,min=15,fromAlarm=false){const r=state.data.reminders.find(x=>x.id===id);if(!r)return;r.nextAt=new Date(Date.now()+min*60000).toISOString();r.alertedAt=null;save();scheduleNativeReminder(r);if(fromAlarm)closeModal();render();toast(`${faDigits(min)} دقیقه بعد یادآوری می‌کنم`)}
+function tomorrowTask(id,fromAlarm=false){const r=state.data.reminders.find(x=>x.id===id);if(!r)return;let d=new Date();d.setDate(d.getDate()+1);const old=new Date(r.nextAt);d.setHours(old.getHours(),old.getMinutes(),0,0);r.nextAt=d.toISOString();r.alertedAt=null;save();scheduleNativeReminder(r);if(fromAlarm)closeModal();render();toast('برای فردا گذاشته شد')}
+function missedTask(id,fromAlarm=false){const r=state.data.reminders.find(x=>x.id===id);if(!r)return;state.logs.push({id:uid(),rid:id,date:todayKey(),at:new Date().toISOString(),action:'missed',title:r.title});const nxt=nextOccurrence(r);if(nxt){r.nextAt=nxt.toISOString();r.alertedAt=null;scheduleNativeReminder(r)}else{r.active=false;if(hasNative())AndroidNative.cancelReminder(id)}save();saveLogs();if(fromAlarm)closeModal();render();toast('به‌عنوان انجام‌نشده ثبت شد')}
+function requestNotify(showMsg=true){if(hasNative()){AndroidNative.requestNotificationPermission();AndroidNative.requestExactAlarmPermission();if(showMsg)toast('در صورت نمایش پنجره اندروید، مجوزها را تأیید کن');return}if(!('Notification'in window)){if(showMsg)toast('مرورگر این قابلیت را ندارد');return}Notification.requestPermission().then(p=>{if(showMsg)toast(p==='granted'?'اعلان فعال شد':'اجازه اعلان داده نشد')})}
+function checkDue(){if(hasNative())return;const now=Date.now();state.data.reminders.filter(r=>r.active!==false&&new Date(r.nextAt).getTime()<=now&&!r.alertedAt).forEach(r=>{r.alertedAt=new Date().toISOString();save();showAlarm(r)})}
+function showAlarm(r){modal(`<div style="text-align:center"><div class="alarm-icon">⏰</div><h2>${escapeHtml(r.title)}</h2><p>${escapeHtml(r.note||'وقت پیگیری این کار رسیده است.')}</p>${r.audioId?`<button class="btn ghost" onclick="playAudio('${r.audioId}')">▶ پخش یادداشت صوتی</button>`:''}<div class="alarm-grid"><button class="btn primary" onclick="completeTask('${r.id}',true)">✓ انجام شد</button><button class="btn ghost" onclick="snoozeTask('${r.id}',15,true)">۱۵ دقیقه بعد</button><button class="btn ghost" onclick="snoozeTask('${r.id}',60,true)">۱ ساعت بعد</button><button class="btn ghost" onclick="tomorrowTask('${r.id}',true)">فردا</button><button class="btn danger" onclick="missedTask('${r.id}',true)">انجام نشد</button></div></div>`)}
+function testAlarm(){if(hasNative()){AndroidNative.testNotification();return}showAlarm({id:'test',title:'هشدار آزمایشی',note:'هشدار داخل برنامه درست کار می‌کند.'})}
+function modal(inner){$('#modalRoot').innerHTML=`<div class="sheet-backdrop" onclick="if(event.target===this)closeModal()"><div class="sheet">${inner}</div></div>`} function closeModal(){if(state.recording&&hasNative()){try{AndroidNative.cancelRecording()}catch(e){}}state.recording=false;$('#modalRoot').innerHTML='';state.voiceBlob=null;state.nativeAudioId=null}
+function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))} function escapeAttr(s=''){return escapeHtml(s)}
+let mediaRecorder,recChunks=[];
+async function startRecording(){if(hasNative()){state.nativeAudioId=uid();state.recording=true;AndroidNative.startRecording(state.nativeAudioId);$('#recBtn')?.classList.add('hidden');$('#stopBtn')?.classList.remove('hidden');if($('#voiceStatus'))$('#voiceStatus').textContent='در حال ضبط...';return}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});recChunks=[];mediaRecorder=new MediaRecorder(stream);mediaRecorder.ondataavailable=e=>recChunks.push(e.data);mediaRecorder.onstop=()=>{state.voiceBlob=new Blob(recChunks,{type:mediaRecorder.mimeType||'audio/webm'});stream.getTracks().forEach(t=>t.stop());$('#voiceStatus').textContent='ویس آماده ذخیره است'};mediaRecorder.start();state.recording=true;$('#recBtn').classList.add('hidden');$('#stopBtn').classList.remove('hidden');$('#voiceStatus').textContent='در حال ضبط...'}catch(e){toast('اجازه میکروفن داده نشد')}}
+function stopRecording(){if(hasNative()){AndroidNative.stopRecording();return}if(mediaRecorder&&mediaRecorder.state!=='inactive'){mediaRecorder.stop();state.recording=false;$('#stopBtn').classList.add('hidden');$('#recBtn').classList.remove('hidden')}}
+window.onNativeRecordingStopped=function(id,ok){state.recording=false;if(ok){state.nativeAudioId=id;if($('#voiceStatus'))$('#voiceStatus').textContent='ویس آماده ذخیره است'}else{state.nativeAudioId=null;toast('ضبط صدا انجام نشد')}$('#stopBtn')?.classList.add('hidden');$('#recBtn')?.classList.remove('hidden')};
+function openDB(){return new Promise((res,rej)=>{const q=indexedDB.open('mm_audio_v1',1);q.onupgradeneeded=()=>q.result.createObjectStore('audio');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})} async function idbPut(id,blob){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction('audio','readwrite');tx.objectStore('audio').put(blob,id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})} async function idbGet(id){const db=await openDB();return new Promise((res,rej)=>{const q=db.transaction('audio').objectStore('audio').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})} async function idbDelete(id){const db=await openDB();return new Promise(res=>{const tx=db.transaction('audio','readwrite');tx.objectStore('audio').delete(id);tx.oncomplete=res})}
+async function playAudio(id){if(hasNative()){AndroidNative.playRecording(id);return}const b=await idbGet(id);if(!b)return toast('فایل صوتی پیدا نشد');new Audio(URL.createObjectURL(b)).play()}
+function showNightSummary(force=false){const k=todayKey(),logs=state.logs.filter(l=>l.date===k),done=logs.filter(l=>l.action==='done').length,missed=logs.filter(l=>l.action==='missed').length,s=todaysStats();modal(`<h3>خلاصه امروز</h3><div class="grid2"><div class="report-card card"><h3>انجام شد</h3><div class="big-num">${faDigits(done)}</div></div><div class="report-card card"><h3>باقی/عقب‌افتاده</h3><div class="big-num">${faDigits(s.late)}</div></div></div><p style="color:var(--muted);line-height:1.9">امروز ${faDigits(done)} کار را انجام‌شده ثبت کردی و ${faDigits(missed)} مورد را انجام‌نشده ثبت کردی.</p><div class="actions"><button class="btn primary" onclick="closeModal()">باشه</button><button class="btn ghost" onclick="state.page='reminders';state.filter='late';state.zone=null;closeModal();render()">دیدن باقی‌مانده‌ها</button></div>`);if(!force)localStorage.setItem(LS.summary,k)}
+function checkNightSummary(){if(hasNative())return;const [h,m]=(state.settings.summaryTime||'22:00').split(':').map(Number),n=new Date(),passed=n.getHours()>h||(n.getHours()===h&&n.getMinutes()>=m);if(passed&&localStorage.getItem(LS.summary)!==todayKey())showNightSummary(false)}
+function backupPack(){return {version:2,exportedAt:new Date().toISOString(),data:state.data,logs:state.logs,settings:state.settings}}
+function exportData(){const txt=JSON.stringify(backupPack(),null,2);if(hasNative()){AndroidNative.saveBackup(txt,'monshi-man-backup-'+todayKey()+'.zip');return}const blob=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='monshi-man-backup-'+todayKey()+'.json';a.click();URL.revokeObjectURL(a.href)}
+function applyBackupText(txt){try{const p=JSON.parse(txt);if(!p.data)throw 0;if(hasNative())AndroidNative.cancelAllReminders();state.data=p.data;state.logs=p.logs||[];state.settings=p.settings||state.settings;save();saveLogs();saveSettings();state.data.reminders.filter(r=>r.active!==false).forEach(scheduleNativeReminder);render();toast('پشتیبان بازیابی شد')}catch(e){toast('فایل پشتیبان معتبر نیست')}}
+function importData(file){if(!file)return;const rd=new FileReader();rd.onload=()=>applyBackupText(rd.result);rd.readAsText(file)} window.receiveNativeBackup=applyBackupText;
+function syncNativeEvents(){if(!hasNative())return;let events=[];try{events=JSON.parse(AndroidNative.drainEvents()||'[]')}catch(e){};if(!events.length)return;for(const e of events){const r=state.data.reminders.find(x=>x.id===e.id);if(!r)continue;if(e.type==='fired'){r.alertedAt=e.at||new Date().toISOString()}else if(e.type==='rescheduled'&&e.nextAt>0){r.nextAt=new Date(e.nextAt).toISOString();r.active=true;r.alertedAt=null}else if(e.type==='done'||e.type==='missed'){if(!state.logs.some(l=>l.nativeEventId===e.eventId))state.logs.push({id:uid(),nativeEventId:e.eventId,rid:r.id,date:e.date||todayKey(),at:e.at||new Date().toISOString(),action:e.type,title:r.title});if(e.nextAt>0){r.nextAt=new Date(e.nextAt).toISOString();r.alertedAt=null}else if(r.repeat==='once')r.active=false}}save();saveLogs();render()}
+window.syncNativeEvents=syncNativeEvents;
+function init(){render();if(hasNative()){syncNativeEvents();AndroidNative.scheduleSummary(state.settings.summaryTime||'22:00');state.data.reminders.filter(r=>r.active!==false).forEach(scheduleNativeReminder)}else{checkDue();checkNightSummary()}}
+setInterval(()=>{if(!hasNative()){checkDue();checkNightSummary()}},15000);init();
+</script>
+</body>
+</html>
